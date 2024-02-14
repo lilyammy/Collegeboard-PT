@@ -1,25 +1,108 @@
 import pygame, random, sys
 
 width = 900
-height = 600
-bg = (0, 0, 0)
-# Create clock to later control frame rate
+height = 500
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("game")
 running = True
+bg = pygame.image.load('sampleimg.png').convert()
+newbg = pygame.transform.scale(bg, (width,height))
+speed = 3
+ex1 = 200
+ex2 = 200
+
+
+class Ground(pygame.sprite.Sprite):
+    def __init__(self,x,y):
+        super(Ground, self).__init__()
+        self.image = pygame.Surface((1000,500), pygame.SRCALPHA, 32)
+        self.image.convert_alpha()
+        self.image.fill("black")
+        self.rect = self.image.get_rect(center = (x,y))
+
+       
+
+class Player1(pygame.sprite.Sprite):
+    def __init__(self,x,y):
+        super(Player1, self).__init__()
+        self.image = pygame.Surface((25,25), pygame.SRCALPHA, 32)
+        self.image.convert_alpha()
+        self.image.fill("white")
+        self.rect = self.image.get_rect(center = (x,y))
+        self.deltax = random.choice([-1,1])
+        self.deltay = random.choice([-1,1])
+
+        
+
+    def move(self):
+        if self.rect.center > (10,790):
+                self.deltax *= -1
+
+
+    def gravity(self):
+        pass
+
+    
+            
+class Player2(pygame.sprite.Sprite):
+    def __init__(self,x,y):
+        super(Player2, self).__init__()
+        self.image = pygame.Surface((25,25), pygame.SRCALPHA, 32)
+        self.image.convert_alpha()
+        self.image.fill("white")
+        self.rect = self.image.get_rect(center = (x,y))
+        
+
+
+
+    
+
+
+
+
+
+
+player =  pygame.sprite.Group()
+player.add(Player1(100,100))
+player.add(Player2(80,100))
+
+ground = pygame.sprite.Group()
+ground.add(Ground(500,650))
+
+
+
 
 while running:
-    # Event handling
+
     for event in pygame.event.get(): # pygame.event.get()
         if event.type == pygame.QUIT:
             running = False
+    
+    
+    
+    
 
 
-screen.fill((0,0,0))
+    for p in player:
+        for g in ground:
+            p.rect.colliderect(g.rect)
+    
 
-pygame.display.flip()
-clock.tick(60)
+    newbg.scroll(10,10)
+    screen.blit(newbg,((ex1+ speed)%600,(ex2 +speed)%900))
+    pygame.display.update()
+
+
+
+    screen.fill((20,0,150))
+
+    player.draw(screen)
+    ground.draw(screen)
+
+
+    pygame.display.flip()
+    clock.tick(60)
 
 pygame.quit()
 sys.exit()
