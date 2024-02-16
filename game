@@ -6,12 +6,11 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("game")
 running = True
-bg = pygame.image.load('sampleimg.png').convert()
+bg = pygame.image.load('collegeimg.jpg').convert()
 newbg = pygame.transform.scale(bg, (width,height))
-speed = 3
-ex1 = 200
-ex2 = 200
-
+screen_scroll = 0
+bg_scroll = 0
+gravity = 0
 
 class Ground(pygame.sprite.Sprite):
     def __init__(self,x,y):
@@ -32,17 +31,35 @@ class Player1(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center = (x,y))
         self.deltax = random.choice([-1,1])
         self.deltay = random.choice([-1,1])
-
+        self.vel_y = 0
+        self.jump = False
+        self.inair = True
         
-
+        
     def move(self):
         if self.rect.center > (10,790):
-                self.deltax *= -1
+             self.deltax *= -1
+             
+        if self.jump == True and self.inair == False:
+            self.vel_y= - 11
+            self.jump = False
+            self.inair = True
+        	
+        self.vel_y += gravity
+        if self.vel_y > 10:
+            self.vel_y
+        deltax += self.vel_y
+        
+        if self.rect.bottom > height:
+            pass
+        
+    
+    def update(self):
+        self.vel_y += gravity
+      
 
 
-    def gravity(self):
-        pass
-
+    
     
             
 class Player2(pygame.sprite.Sprite):
@@ -79,18 +96,28 @@ while running:
         if event.type == pygame.QUIT:
             running = False
     
+    keys = pygame.key.get_pressed()
     
+    if keys[pygame.K_a] and player.rect.centerx >5:
+        player.rect.centerx -= 5
+    
+    if keys[pygame.K_d] and player.rect.centerx <790:
+        player.rect.centerx += 5
+    
+    if keys[pygame.K_w] and player.rect.centery > 5:
+        player.rect.centery -= 5
+        player.update()
+        player.move()
+    
+
     
     
 
 
-    for p in player:
-        for g in ground:
-            p.rect.colliderect(g.rect)
+    # for p in player:
+    #     for g in ground:
+    #         p.rect.colliderect(g.rect)
     
-
-    newbg.scroll(10,10)
-    screen.blit(newbg,((ex1+ speed)%600,(ex2 +speed)%900))
     pygame.display.update()
 
 
@@ -99,8 +126,7 @@ while running:
 
     player.draw(screen)
     ground.draw(screen)
-
-
+    
     pygame.display.flip()
     clock.tick(60)
 
