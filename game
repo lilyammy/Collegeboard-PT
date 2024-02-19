@@ -7,11 +7,11 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("game")
 running = True
-bg = pygame.image.load('sampleimg.png').convert()
-newbg = pygame.transform.scale(bg, (width,height))
-screen_scroll = 0
-bg_scroll = 0
-gravity = 0
+basegroundy = 0
+platformbg = pygame.image.load('platform.jpg').convert()
+platx = 0
+platwidth = platformbg.get_width
+
 
 class Ground(pygame.sprite.Sprite):
     def __init__(self,x,y):
@@ -43,41 +43,30 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center = (x,y))
         self.deltax = random.choice([-1,1])
         self.deltay = random.choice([-1,1])
-        self.vel_y = 0
-        self.jump = False
-        self.inair = True
-        self.speed = 4
+        self.jump = 0
+        self.movex = 0
+        self.movey = 0
         
         
     def move(self):
         if self.rect.center > (10,790):
              self.deltax *= -1
              
-        if self.jump == True and self.inair == False:
-            self.vel_y= - 11
-            self.jump = False
-            self.inair = True
-        	
-        self.vel_y += gravity
-
-        if self.vel_y > 10:
-            self.vel_y
-        self.deltax += self.vel_y
+       
+    def gravity(self):
+        self.movey += 3.2
+        if self.rect.centery > basegroundy and self.movey >= 0:
+            self.movey = 0
+            self.rect.centery = basegroundy - 64
+        self.movey += self.rect.centery
         
-        if self.rect.bottom > height:
-            pass
-    
+  
     def update(self):
-        self.vel_y += gravity
+            self.rect.centerx = self.rect.centerx + self.movex
+            self.rect.centery = self.rect.centery + self.movey
 
-      
-    # def bound(self):
-    #     if self.rect.left < 10 or self.rect.right>100:
-    #         self.rect.centerx *= -1
-    #     if self.rect.top < 10 or self.rect.bottom > 100:
-    #         self.rect.centery *= -1
+            
 
-       
        
       
 
@@ -91,16 +80,17 @@ class Player(pygame.sprite.Sprite):
 
 
 
-player1 = Player(100,200,"black")
-player2 = Player(100,200,"white")
+player1 = Player(390,390,"black")
+player2 = Player(390,390,"white")
 player =  pygame.sprite.Group()
 player.add(player1)
 player.add(player2)
 
 ground = pygame.sprite.Group()
-ground.add(Ground(500,650))
-ground.add(Platform(300,200))
-
+baseground = (Ground(500,650))
+platform = (Platform(300,200))
+ground.add(baseground)
+ground.add(platform)
 
 
 while running:
@@ -109,6 +99,13 @@ while running:
         if event.type == pygame.QUIT:
             running = False
     
+    
+    clock.tick(30)
+    platform.rect.centerx -= 1.4
+    if platform.rect.centerx <900:
+        platform.rect.centerx  += 1.4
+    
+   
     keys = pygame.key.get_pressed()
     
     if keys[pygame.K_a] and player1.rect.centerx >5:
@@ -119,6 +116,8 @@ while running:
     
     if keys[pygame.K_w] and player1.rect.centery > 5:
         player1.rect.centery -= 5
+        player1.gravity()
+        
        
     
 
@@ -128,25 +127,27 @@ while running:
         if event.key == pygame.K_RIGHT:
             player2.rect.centerx += 10
         if event.key == pygame.K_UP:
-            player2.rect.centery -=player2.speed
-        if event.key == pygame.K_DOWN:
+            player2.gravity()
+        if event.key == pygame.K_DOWN and player2.rect.centery <390:
             player2.rect.centery += 10
+     
            
 
   
 
    
-    for p in player:
-       p.update()
-    
-    pygame.display.update()
+
 
 
 
     screen.fill((20,0,150))
-    screen.blit(bg,(600,900))
+    # screen.blit(bg,(600,900))
     player.draw(screen)
-    ground.draw(screen)
+    ground.draw(screen) 
+    pygame.display.update()
+
+
+    
     
     pygame.display.flip()
     clock.tick(60)
