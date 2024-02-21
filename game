@@ -1,4 +1,4 @@
-import pygame, random, sys
+import pygame, random, sys, math
 
 
 width = 900
@@ -8,26 +8,55 @@ screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("game")
 running = True
 basegroundy = 0
-platformbg = pygame.image.load('platform.jpg').convert()
+platformbg = pygame.image.load('sampleimg.png').convert()
+rect = platformbg.get_rect()
+rect.center= (200,300)
 platx = 0
 platwidth = platformbg.get_width
 
 
-class Ground(pygame.sprite.Sprite):
+class Baseground(pygame.sprite.Sprite):
     def __init__(self,x,y):
-        super(Ground, self).__init__()
+        super(Baseground, self).__init__()
         self.image = pygame.Surface((1000,500), pygame.SRCALPHA, 32)
         self.image.convert_alpha()
         self.image.fill("black")
         self.rect = self.image.get_rect(center = (x,y))
 
-class Platform(Ground):
+class Platform(Baseground):
     def __init__(self,x,y):
-        super(Ground, self).__init__()
+        super(Baseground, self).__init__()
         self.image = pygame.Surface((100,30), pygame.SRCALPHA, 32)
         self.image.convert_alpha()
         self.image.fill("brown")
         self.rect = self.image.get_rect(center = (x,y))
+
+class Obstacle(pygame.sprite.Sprite):
+    def __init__(self):
+        super(Obstacle, self).__init__()
+        self.image = pygame.Surface((100,30), pygame.SRCALPHA, 32)
+        self.image.convert_alpha()
+        self.image.fill("pink")
+        self.rect = self.image.get_rect(center = ((random.randint(20,890),random.randint(-940,-20))))
+    def fall(self):
+        while self.rect.bottom < 690:
+            self.rect.centery += 4
+        if self.rect.bottom > 690:
+            self.rect =self.image.get_rect(center = ((random.randint(20,890),random.randint(-940,-20))))
+
+class Gift(pygame.sprite.Sprite):
+     def __init__(self):
+        super(Gift, self).__init__()
+        self.color = "yellow"
+        self.radius = 10
+        self.image = pygame.Surface((self.radius*2, self.radius*2), pygame.SRCALPHA, 32)
+        self.image = self.image.convert_alpha()
+        pygame.draw.circle(self.image, self.color, (self.radius,self.radius), self.radius)
+        self.rect = self.image.get_rect(center = (random.randint(10,790), random.randint(10,590)))
+
+  
+       
+
     
     
         
@@ -43,35 +72,26 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center = (x,y))
         self.deltax = random.choice([-1,1])
         self.deltay = random.choice([-1,1])
-        self.jump = 0
-        self.movex = 0
-        self.movey = 0
+        self.y = 340
         
-             
-       
+    
+ 	
     def gravity(self):
-        self.movey += 1
-        if self.rect.centery > basegroundy and self.movey >= 0:
-            self.movey = 0
-            self.rect.centery = basegroundy +340
-        self.movey += self.rect.centery
+        self.y += 20
+        self.rect.centery = self.y
+        if self.rect.bottom > 390:
+            self.rect.centery ==380
         
-  
-    def update(self):
-            self.rect.centerx = self.rect.centerx + self.movex -1
-            self.rect.centery = self.rect.centery + self.movey
-
-            
-
-       
-      
-
 
     
 
+obstacle = pygame.sprite.Group()
+for i in range(100):
+    obstacle.add(Obstacle())
 
-    
-
+gift = pygame.sprite.Group()
+for i in range(3):
+    gift.add(Gift())
 
 
 
@@ -83,10 +103,10 @@ player.add(player1)
 player.add(player2)
 
 ground = pygame.sprite.Group()
-baseground = (Ground(500,650))
-platform = (Platform(300,200))
+baseground = (Baseground(500,650))
+# platform = (Platform(300,200))
 ground.add(baseground)
-ground.add(platform)
+
 
 
 
@@ -96,7 +116,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
     
-    screen.blit(platformbg, (300, 0))
+    screen.blit(platformbg,rect)
     pygame.display.update()
 
     
@@ -106,22 +126,28 @@ while running:
 
     if platx < platformbg.get_width() *-1:
          platx = platformbg.get_width()
-    
+
+
    
     keys = pygame.key.get_pressed()
     
     if keys[pygame.K_a] and player1.rect.centerx >5:
         player1.rect.centerx -= 5
+       
     
     if keys[pygame.K_d] and player1.rect.centerx <790:
         player1.rect.centerx += 5
     
     if keys[pygame.K_w] and player1.rect.centery > 5:
-        player1.rect.centery -= 5
         player1.gravity()
-        print(player1.rect.centery)
         
        
+            
+           
+        
+    for o in obstacle:
+        o.fall()
+        print(o.rect.bottom)
     
 
     if event.type == pygame.KEYDOWN:
@@ -131,6 +157,7 @@ while running:
             player2.rect.centerx += 10
         if event.key == pygame.K_UP:
             player2.gravity()
+            print(player2.rect.centerx)
         if event.key == pygame.K_DOWN and player2.rect.centery <390:
             player2.rect.centery += 10
      
@@ -147,6 +174,8 @@ while running:
     # screen.blit(bg,(600,900))
     player.draw(screen)
     ground.draw(screen) 
+    obstacle.draw(screen)
+    gift.draw(screen)
     pygame.display.update()
 
 
