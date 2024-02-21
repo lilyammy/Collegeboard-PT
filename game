@@ -47,22 +47,18 @@ class Player(pygame.sprite.Sprite):
         self.movex = 0
         self.movey = 0
         
-        
-    def move(self):
-        if self.rect.center > (10,790):
-             self.deltax *= -1
              
        
     def gravity(self):
-        self.movey += 3.2
+        self.movey += 1
         if self.rect.centery > basegroundy and self.movey >= 0:
             self.movey = 0
-            self.rect.centery = basegroundy - 64
+            self.rect.centery = basegroundy +340
         self.movey += self.rect.centery
         
   
     def update(self):
-            self.rect.centerx = self.rect.centerx + self.movex
+            self.rect.centerx = self.rect.centerx + self.movex -1
             self.rect.centery = self.rect.centery + self.movey
 
             
@@ -93,17 +89,23 @@ ground.add(baseground)
 ground.add(platform)
 
 
+
 while running:
 
     for event in pygame.event.get(): # pygame.event.get()
         if event.type == pygame.QUIT:
             running = False
     
+    screen.blit(platformbg, (300, 0))
+    pygame.display.update()
+
+    
     
     clock.tick(30)
-    platform.rect.centerx -= 1.4
-    if platform.rect.centerx <900:
-        platform.rect.centerx  += 1.4
+    platx -= 1.
+
+    if platx < platformbg.get_width() *-1:
+         platx = platformbg.get_width()
     
    
     keys = pygame.key.get_pressed()
@@ -117,6 +119,7 @@ while running:
     if keys[pygame.K_w] and player1.rect.centery > 5:
         player1.rect.centery -= 5
         player1.gravity()
+        print(player1.rect.centery)
         
        
     
