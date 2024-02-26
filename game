@@ -3,20 +3,18 @@ import pygame, random, sys, math
   #star #https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.freepik.com%2Ffree-photos-vectors%2Fcartoon-stars-png&psig=AOvVaw1q1awV4ghIjxs8f30vh86L&ust=1708654369946000&source=images&cd=vfe&opi=89978449&ved=0CBMQjRxqFwoTCIi12_bxvYQDFQAAAAAdAAAAABAE
   #background https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtr83gni_FSycPowjmh7NAET7EFojHmfXg-w&usqp=CAU
   #gift https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRM-Qrn-v5aDRfOclTLQGUwoWfaRSnyXgicYQ&usqp=CAU
-  
+  #star2 https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTV-WTE1xi6Pkz8TPElWkdp-znxylRuoQ7qd_GQpUSuNQ&s
+
 width = 900
 height = 650
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("game")
-bgimage = pygame.transform.scale(pygame.image.load('bgpic.jpg').convert(), (900,650))
+bgimage = pygame.transform.scale(pygame.image.load('bg.jpg').convert(), (900,650))
 running = True
 basegroundy = 0
 
-# rect = platformbg.get_rect()
-# rect.center= (200,300)
-# platx = 0
-# platwidth = platformbg.get_width
+
 
 
 class Baseground(pygame.sprite.Sprite):
@@ -55,14 +53,15 @@ class Platform_reverse(pygame.sprite.Sprite):
     def move_reverse(self):
         self.rect.right -= 3
         if  self.rect.left<0:
-            self.rect =  self.image.get_rect(center = (random.randint(50,890), random.randint(30,500)))
+            self.velocity *= -1
+            self.rect =self.image.get_rect(center = (random.randint(50,890), random.randint(30,500)))
 
        
            
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self):
         super(Obstacle, self).__init__()
-        self.image = pygame.image.load('star.jpg').convert()
+        self.image = pygame.image.load('star.png').convert()
         self.image.convert_alpha()
         self.image = pygame.transform.scale(self.image, (40,40))
         self.rect = self.image.get_rect(center = ((random.randint(20,890),random.randint(-940,-20))))
@@ -100,7 +99,17 @@ class Player(pygame.sprite.Sprite):
         self.deltax = random.choice([-1,1])
         self.deltay = random.choice([-1,1])
         self.y = 390
+        self.hp = 100
+
+
+    def fall_damage(self ,damage):
+                self.hp += self.hp - damage
+                if self.hp == 0:
+                    print("game over")
+    
         
+
+
 
         
 
@@ -143,6 +152,9 @@ gravity = 1
 jump = 20
 velocity = jump
 start_jump = False
+damage = 10
+
+
 
 
 
@@ -151,6 +163,8 @@ while running:
     for event in pygame.event.get(): # pygame.event.get()
         if event.type == pygame.QUIT:
             running = False
+    
+
     
    
 
@@ -176,8 +190,10 @@ while running:
             player2.rect.centerx -= 10
         if event.key == pygame.K_RIGHT:
             player2.rect.centerx += 10
-        if event.key == pygame.K_DOWN and player2.rect.centery <390:
+        if event.key == pygame.K_DOWN and player2.rect.centery <490:
             player2.rect.centery += 10
+            # player2.fall_damage(damage)
+            # print(damage)
         if event.key == pygame.K_UP:
             start_jump = True
           
@@ -208,16 +224,14 @@ while running:
         platr.move_reverse()
         for p in player:
             if platr.rect.colliderect(p.rect):
-                if p.rect.bottom > platr.rect.top and velocity >= 0:
-                    p.rect.bottom == platr.rect.top
-                    velocity = 0
-                    p.rect.left += platr.rect.centerx
-                    jump = False
-                    p.rect.centery = jump
-                    jump = True
-                if p.rect.centery > 690:
-                    p.rect.centery = 690
-                    velocity = 0
+                if p.rect.bottom > platr.rect.top:
+                    p.rect.bottom = platr.rect.top
+                    p.rect.left += platr.velocity
+                elif p.rect.left> 100:
+                    velocity -= gravity
+
+                
+                   
                     
 
 
@@ -231,8 +245,8 @@ while running:
     screen.blit(bgimage,(0,0))
     player.draw(screen)
     ground.draw(screen) 
-    obstacle.draw(screen)
-    gift.draw(screen)
+    # obstacle.draw(screen)
+    # gift.draw(screen)
     pygame.display.update()
   
 
