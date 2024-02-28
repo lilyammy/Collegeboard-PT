@@ -25,19 +25,20 @@ class Baseground(pygame.sprite.Sprite):
         self.image.fill("black")
         self.rect = self.image.get_rect(center = (x,y))
 
-class Platform(Baseground):
+class Platform(pygame.sprite.Sprite):
     def __init__(self):
-        super(Baseground, self).__init__()
+        super(Platform, self).__init__()
         self.image = pygame.Surface((100,30), pygame.SRCALPHA, 32)
         self.image.convert_alpha()
         self.image.fill("brown")
-        self.rect = self.image.get_rect(center = (random.randint(10,890), random.randint(30,500)))
+        self.rect = self.image.get_rect(center = (random.randint(10,890), random.randint(30,590)))
         self.deltax = random.choice([-1,1])
+        self.velocity = 5
         
     def move(self):
         self.rect.left += 3
         if  self.rect.right>800:
-            self.rect =  self.image.get_rect(center = (random.randint(10,890), random.randint(30,500)))
+            self.rect =  self.image.get_rect(center = (random.randint(10,890), random.randint(30,590)))
 
 
 class Platform_reverse(pygame.sprite.Sprite):
@@ -46,7 +47,7 @@ class Platform_reverse(pygame.sprite.Sprite):
         self.image = pygame.Surface((100,30), pygame.SRCALPHA, 32)
         self.image.convert_alpha()
         self.image.fill("white")
-        self.rect = self.image.get_rect(center = (random.randint(50,890), random.randint(30,500)))
+        self.rect = self.image.get_rect(center = (random.randint(10,890), random.randint(30,590)))
         self.deltax = random.choice([-1,1])
         self.velocity = 5
     
@@ -54,7 +55,7 @@ class Platform_reverse(pygame.sprite.Sprite):
         self.rect.right -= 3
         if  self.rect.left<0:
             self.velocity *= -1
-            self.rect =self.image.get_rect(center = (random.randint(50,890), random.randint(30,500)))
+            self.rect =self.image.get_rect(center = (random.randint(10,890), random.randint(30,590)))
 
        
            
@@ -94,20 +95,24 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.Surface((25,25), pygame.SRCALPHA, 32)
         self.color = color
         self.image.convert_alpha()
-        self.image.fill("white")
+        self.image.fill(color)
         self.rect = self.image.get_rect(center = (x,y))
         self.deltax = random.choice([-1,1])
         self.deltay = random.choice([-1,1])
-        self.y = 390
         self.hp = 100
+      
 
 
     def fall_damage(self ,damage):
-                self.hp += self.hp - damage
-                if self.hp == 0:
-                    print("game over")
+                self.hp = self.hp - damage
+                if self.color == "green":
+                    self.hp = self.hp -damage+2
+                return self.hp
     
-        
+    def relocate(self):
+        self.rect = self.image.get_rect(center = (390,540))
+       
+
 
 
 
@@ -171,12 +176,17 @@ while running:
    
     keys = pygame.key.get_pressed()
     
-    if keys[pygame.K_a] and player1.rect.centerx >5:
+    if keys[pygame.K_a] and player1.rect.centerx >0:
         player1.rect.centerx -= 5
+        print("player1 rect", player1.rect.centerx)
+   
+        
        
     
     if keys[pygame.K_d] and player1.rect.centerx <790:
         player1.rect.centerx += 5
+  
+      
     
     if keys[pygame.K_w] and player1.rect.centery > 5:
         start_jump = True
@@ -192,8 +202,6 @@ while running:
             player2.rect.centerx += 10
         if event.key == pygame.K_DOWN and player2.rect.centery <490:
             player2.rect.centery += 10
-            # player2.fall_damage(damage)
-            # print(damage)
         if event.key == pygame.K_UP:
             start_jump = True
           
@@ -211,24 +219,32 @@ while running:
             if velocity < -jump:
                 start_jump = False
                 velocity = jump
+                p.fall_damage(20)
+                if p.hp ==0:
+                    running = False
+
 
        
 
-    for plat in platforms:    
-        plat.move()
-        for p in player:
-           plat.rect.colliderect(p.rect)
+    # for plat in platforms:    
+    #     plat.move()
+    #     for p in player:
+    #        plat.rect.colliderect(p.rect)
 
 
     for platr in platforms_reverse:
         platr.move_reverse()
-        for p in player:
-            if platr.rect.colliderect(p.rect):
-                if p.rect.bottom > platr.rect.top:
-                    p.rect.bottom = platr.rect.top
-                    p.rect.left += platr.velocity
-                elif p.rect.left> 100:
-                    velocity -= gravity
+        # for p in player:
+
+    #         if platr.rect.colliderect(p.rect):
+    #             if p.rect.bottom > platr.rect.top and p.rect.left <100:
+    #                 print("this is", platr.velocity)
+    #                 p.rect.bottom = platr.rect.top
+    #                 p.rect.left += platr.velocity
+    #             else:
+    #                 p.rect.bottom = 390
+               
+                
 
                 
                    
