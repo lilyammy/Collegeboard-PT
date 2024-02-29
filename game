@@ -10,7 +10,7 @@ height = 650
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("game")
-bgimage = pygame.transform.scale(pygame.image.load('bg.jpg').convert(), (900,650))
+bgimage = pygame.transform.scale(pygame.image.load('bgpic.jpg').convert(), (900,650))
 running = True
 basegroundy = 0
 
@@ -31,14 +31,14 @@ class Platform(pygame.sprite.Sprite):
         self.image = pygame.Surface((100,30), pygame.SRCALPHA, 32)
         self.image.convert_alpha()
         self.image.fill("brown")
-        self.rect = self.image.get_rect(center = (random.randint(10,890), random.randint(30,590)))
+        self.rect = self.image.get_rect(center = (random.randint(10,890), random.randint(10,590)))
         self.deltax = random.choice([-1,1])
         self.velocity = 5
         
     def move(self):
         self.rect.left += 3
         if  self.rect.right>800:
-            self.rect =  self.image.get_rect(center = (random.randint(10,890), random.randint(30,590)))
+            self.rect =  self.image.get_rect(center = (random.randint(10,890), random.randint(10,590)))
 
 
 class Platform_reverse(pygame.sprite.Sprite):
@@ -47,7 +47,7 @@ class Platform_reverse(pygame.sprite.Sprite):
         self.image = pygame.Surface((100,30), pygame.SRCALPHA, 32)
         self.image.convert_alpha()
         self.image.fill("white")
-        self.rect = self.image.get_rect(center = (random.randint(10,890), random.randint(30,590)))
+        self.rect = self.image.get_rect(center = (random.randint(10,890), random.randint(10,590)))
         self.deltax = random.choice([-1,1])
         self.velocity = 5
     
@@ -55,14 +55,14 @@ class Platform_reverse(pygame.sprite.Sprite):
         self.rect.right -= 3
         if  self.rect.left<0:
             self.velocity *= -1
-            self.rect =self.image.get_rect(center = (random.randint(10,890), random.randint(30,590)))
+            self.rect =self.image.get_rect(center = (random.randint(10,890), random.randint(10,590)))
 
        
            
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self):
         super(Obstacle, self).__init__()
-        self.image = pygame.image.load('star.png').convert()
+        self.image = pygame.image.load('star.jpg').convert()
         self.image.convert_alpha()
         self.image = pygame.transform.scale(self.image, (40,40))
         self.rect = self.image.get_rect(center = ((random.randint(20,890),random.randint(-940,-20))))
@@ -99,7 +99,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center = (x,y))
         self.deltax = random.choice([-1,1])
         self.deltay = random.choice([-1,1])
-        self.hp = 100
+        self.hp = 500
       
 
 
@@ -109,8 +109,8 @@ class Player(pygame.sprite.Sprite):
                     self.hp = self.hp -damage+2
                 return self.hp
     
-    def relocate(self):
-        self.rect = self.image.get_rect(center = (390,540))
+    # def relocate(self):
+    #     self.rect = self.image.get_rect(center = (390,540))
        
 
 
@@ -137,7 +137,7 @@ for i in range(4):
     platforms_reverse.add(Platform_reverse())
 
 
-player1 = Player(390,530,"black")
+player1 = Player(390,530,"green")
 player2 = Player(390,530,"white")
 player =  pygame.sprite.Group()
 player.add(player1)
@@ -176,10 +176,9 @@ while running:
    
     keys = pygame.key.get_pressed()
     
-    if keys[pygame.K_a] and player1.rect.centerx >0:
+    if keys[pygame.K_a] and player1.rect.centerx >5:
         player1.rect.centerx -= 5
-        print("player1 rect", player1.rect.centerx)
-   
+        
         
        
     
@@ -197,11 +196,11 @@ while running:
 
     if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_LEFT:
-            player2.rect.centerx -= 10
+            player2.rect.centerx -= 5
         if event.key == pygame.K_RIGHT:
-            player2.rect.centerx += 10
+            player2.rect.centerx += 5
         if event.key == pygame.K_DOWN and player2.rect.centery <490:
-            player2.rect.centery += 10
+            player2.rect.centery += 5
         if event.key == pygame.K_UP:
             start_jump = True
           
@@ -231,20 +230,14 @@ while running:
     #     for p in player:
     #        plat.rect.colliderect(p.rect)
 
-
+    
     for platr in platforms_reverse:
         platr.move_reverse()
-        # for p in player:
-
-    #         if platr.rect.colliderect(p.rect):
-    #             if p.rect.bottom > platr.rect.top and p.rect.left <100:
-    #                 print("this is", platr.velocity)
-    #                 p.rect.bottom = platr.rect.top
-    #                 p.rect.left += platr.velocity
-    #             else:
-    #                 p.rect.bottom = 390
-               
-                
+        for p in player:
+            if platr.rect.colliderect(p.rect):
+                    p.rect.bottom = platr.rect.top
+                    if p.rect.left > platr.rect.left or p.rect.right < platr.rect.right:
+                        print("hello")
 
                 
                    
